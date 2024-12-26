@@ -21,7 +21,7 @@ Green Shield Media project is a platform that allows users to track game develop
 To get a copy of the project on your local machine, use the following command:
     ```bash
     git clone https://github.com/your-username/GreenShieldMedia.git
-    '''
+    ```
 
 ## Setup Instructions
 
