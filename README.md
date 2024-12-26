@@ -41,21 +41,6 @@ To get a copy of the project on your local machine, use the following command:
     docker --version
     ```
 
-
-### Directory Structure
-```plaintext
-GreenShieldMedia/
-├── app/
-│   ├── __init__.py
-│   ├── routes/
-│   │   └── main.py
-│   ├── templates/
-│   │   └── index.html
-├── requirements.txt
-├── Dockerfile
-└── README.md
-```
-
 ### Build and Run with Docker
 1. Build the Docker image:
    ```bash
