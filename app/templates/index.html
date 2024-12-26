@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Shield Media</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom GSM Theme CSS -->
+    <link href="{{ url_for('static', filename='css/gsmtheme.css') }}" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+</head>
+<body class="light-mode">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Green Shield Media Logo" class="me-2">
+                <span>Green Shield Media</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#rss-feed">News</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#latest-games">Popular Games</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" id="toggle-mode">Toggle Mode</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="theme-header text-white py-5 text-center">
+        <div class="container">
+            <h1>Welcome to Green Shield Media</h1>
+            <p class="lead">Track your favorite game developers, writers, and directors here.</p>
+        </div>
+    </header>
+
+    <main class="container my-5">
+        <!-- RSS Feed Section -->
+        <section id="rss-feed" class="mb-5">
+            <h2 class="mb-4">Latest Gaming News</h2>
+            <div id="loading-news" class="text-center my-3" style="display: none;">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="list-group" id="news-list">
+                <!-- News content will populate here -->
+            </div>
+        </section>
+
+        <!-- Popular Games Section -->
+        <section id="popular-games">
+            <h2 class="mb-4">Popular Games</h2>
+            <div id="loading-games" class="text-center my-3" style="display: none;">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="row g-4" id="games-container">
+                <!-- Games content will populate here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3">
+        <p class="mb-0">&copy; 2024 Green Shield Media. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Light/Dark Mode Toggle
+        const toggleModeButton = document.getElementById('toggle-mode');
+        toggleModeButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                toggleModeButton.textContent = "Switch to Light Mode";
+            } else {
+                toggleModeButton.textContent = "Switch to Dark Mode";
+            }
+        });
+
+        // Fetch RSS Feed for Gaming News
+        async function fetchNews() {
+            const newsList = document.getElementById('news-list');
+            const loadingNews = document.getElementById('loading-news');
+            loadingNews.style.display = 'block';
+
+            try {
+                const response = await fetch('/rss-feed');
+                const data = await response.json();
+                newsList.innerHTML = '';
+                data.items.forEach(item => {
+                    const a = document.createElement('a');
+                    a.classList.add('list-group-item', 'list-group-item-action');
+                    a.href = item.link;
+                    a.target = '_blank';
+                    a.textContent = item.title;
+                    newsList.appendChild(a);
+                });
+            } catch (err) {
+                console.error("Error fetching news:", err);
+                newsList.innerHTML = '<p>Error loading news.</p>';
+            } finally {
+                loadingNews.style.display = 'none';
+            }
+        }
+        fetchNews();
+
+        // Fetch Latest Games
+        async function fetchLatestGames() {
+            const gamesContainer = document.getElementById('games-container');
+            const loadingGames = document.getElementById('loading-games');
+            loadingGames.style.display = 'block';
+
+            try {
+                const response = await fetch('/popular-games');
+                const data = await response.json();
+                gamesContainer.innerHTML = '';
+                if (data.games) {
+                    data.games.forEach(game => {
+                        const card = document.createElement('div');
+                        card.classList.add('col-md-4');
+                        card.innerHTML = `
+                            <div class="card h-100 shadow-sm">
+                                <img src="${game.background_image || 'https://via.placeholder.com/300x150'}" class="card-img-top" alt="${game.name}">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">${game.name}</h5>
+                                    <p class="card-text">Release Date: ${game.released || 'Unknown'}</p>
+                                    <a href="#" class="btn btn-primary mt-auto">Learn More</a>
+                                </div>
+                            </div>
+                        `;
+                        gamesContainer.appendChild(card);
+                    });
+                } else {
+                    gamesContainer.innerHTML = '<p>No games available at the moment.</p>';
+                }
+            } catch (err) {
+                console.error("Error fetching games:", err);
+                gamesContainer.innerHTML = '<p>Error loading games.</p>';
+            } finally {
+                loadingGames.style.display = 'none';
+            }
+        }
+        fetchLatestGames();
+    </script>
+</body>
+</html>
